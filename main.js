@@ -65,3 +65,40 @@ const sunGeometry = new THREE.SphereGeometry(10, 32, 32);
 const sun = new THREE.Mesh(sunGeometry, sunMaterial);
 sun.position.set(0, 0, 0);
 scene.add(sun);
+
+// TEXTURA DA TERRA
+const textureLoader = new THREE.TextureLoader();
+const earthTexture = textureLoader.load('./textures/2k_earth_daymap.jpg');
+earthTexture.colorSpace = THREE.SRGBColorSpace;
+const earthMaterial = new THREE.MeshStandardMaterial({
+    map: earthTexture,
+    color: 0x0077ff,
+    emissive: 0x002244,
+    emissiveIntensity: 1.5,
+    metalness: 0.1,
+    roughness: 0.7
+});
+
+// TERRA
+const earthGeometry = new THREE.SphereGeometry(3, 32, 32);
+const earth = new THREE.Mesh(earthGeometry, earthMaterial);
+earth.castShadow = true;
+earth.receiveShadow = true;
+earth.position.set(25, 0, 0);
+scene.add(earth);
+
+// LUA
+const moonMaterial = new THREE.MeshStandardMaterial({ color: 0xE0E0E0, roughness: 0.9 });
+const moonGeometry = new THREE.SphereGeometry(0.8, 32, 32);
+const moon = new THREE.Mesh(moonGeometry, moonMaterial);
+moon.castShadow = true;
+moon.receiveShadow = true;
+moon.position.set(5, 0, 0);
+earth.add(moon);
+
+// ÓRBITA DA LUA
+const moonOrbitGeometry = new THREE.TorusGeometry(5, 0.05, 16, 100);
+const moonOrbitMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.3 });
+const moonOrbit = new THREE.Mesh(moonOrbitGeometry, moonOrbitMaterial);
+moonOrbit.rotation.x = Math.PI / 2;
+earth.add(moonOrbit);
