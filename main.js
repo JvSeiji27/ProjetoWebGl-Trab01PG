@@ -34,3 +34,34 @@ mainCamera.lookAt(0, 0, 0);
 
 const earthFollowCamera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
 let activeCamera = mainCamera;
+
+// SOL COM SHADER PERSONALIZADO
+const sunMaterial = new THREE.ShaderMaterial({
+    vertexShader: `
+        varying vec2 vUv;
+        void main() {
+            vUv = uv;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+    `,
+    fragmentShader: `
+        precision mediump float;
+        uniform float uTime;
+        varying vec2 vUv;
+        float random(vec2 st) { return fract(sin(dot(st.xy, vec2(12.9898,78.233))) * 43758.5453123); }
+        void main() {
+            vec2 uv = vUv; float noise = 0.0;
+            noise += 0.5 * random(uv * 5.0 + uTime * 0.1);
+            noise += 0.25 * random(uv * 10.0 + uTime * 0.2);
+            noise += 0.125 * random(uv * 20.0 + uTime * 0.3);
+            vec3 baseColor = vec3(1.0, 0.7, 0.0); vec3 spotColor = vec3(1.0, 0.2, 0.0);
+            vec3 finalColor = mix(baseColor, spotColor, noise);
+            gl_FragColor = vec4(finalColor, 1.0);
+        }
+    `,
+    uniforms: { uTime: { value: 0.0 } }
+});
+const sunGeometry = new THREE.SphereGeometry(10, 32, 32);
+const sun = new THREE.Mesh(sunGeometry, sunMaterial);
+sun.position.set(0, 0, 0);
+scene.add(sun);
