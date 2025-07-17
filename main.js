@@ -102,3 +102,57 @@ const moonOrbitMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, transpa
 const moonOrbit = new THREE.Mesh(moonOrbitGeometry, moonOrbitMaterial);
 moonOrbit.rotation.x = Math.PI / 2;
 earth.add(moonOrbit);
+
+// MARTE
+const marsMaterial = new THREE.MeshStandardMaterial({ color: 0xD95F1E, roughness: 0.8 });
+const marsGeometry = new THREE.SphereGeometry(2, 32, 32);
+const mars = new THREE.Mesh(marsGeometry, marsMaterial);
+mars.castShadow = true;
+mars.receiveShadow = true;
+mars.position.set(45, 0, 0);
+scene.add(mars);
+
+// ANIMAÇÃO
+const clock = new THREE.Clock();
+function animate() {
+    requestAnimationFrame(animate);
+    const elapsedTime = clock.getElapsedTime();
+    starfield.rotation.y += 0.0001;
+
+    // Movimento da Terra, Lua e Marte
+    earth.position.x = Math.cos(elapsedTime * 0.5) * 25;
+    earth.position.z = Math.sin(elapsedTime * 0.5) * 25;
+    earth.rotation.y += 0.005;
+
+    moon.position.x = Math.cos(elapsedTime * 2.0) * 5;
+    moon.position.z = Math.sin(elapsedTime * 2.0) * 5;
+
+    mars.position.x = Math.cos(elapsedTime * 0.3) * 45;
+    mars.position.z = Math.sin(elapsedTime * 0.3) * 45;
+
+    // Sol animado (shader)
+    sun.material.uniforms.uTime.value = elapsedTime;
+
+    // Câmera que segue a Terra
+    const earthPosition = earth.position;
+    earthFollowCamera.position.set(earthPosition.x + 8, earthPosition.y + 5, earthPosition.z + 8);
+    earthFollowCamera.lookAt(earthPosition);
+
+    renderer.render(scene, activeCamera);
+}
+animate();
+
+// EVENTOS
+window.addEventListener('keydown', (event) => {
+    if (event.key.toLowerCase() === 'c') {
+        activeCamera = (activeCamera === mainCamera) ? earthFollowCamera : mainCamera;
+    }
+});
+window.addEventListener('resize', () => {
+    mainCamera.aspect = window.innerWidth / window.innerHeight;
+    mainCamera.updateProjectionMatrix();
+    earthFollowCamera.aspect = window.innerWidth / window.innerHeight;
+    earthFollowCamera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+});
